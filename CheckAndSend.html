@@ -1,31 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Check NFT & Send License</title>
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <title>Check & Send License NFT</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
     <script src="check_and_send.js" defer></script>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 40px; }
-        button { padding: 10px 20px; font-size: 16px; margin: 10px; }
-        #status { margin-top: 20px; font-weight: bold; }
+        body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
+        #nft-status { margin: 20px 0; font-weight: bold; }
+        #send-btn { padding: 10px 20px; font-size: 16px; display: none; }
     </style>
 </head>
-
 <body>
-    <h1>Machine NFT Verification</h1>
-    <button onclick="connectMetaMask()">Connect Wallet</button>
+    <h1>License NFT Validation</h1>
+    <button onclick="connectWallet()">Connect Wallet</button>
     <p id="wallet-address">Wallet: Not Connected</p>
-
-    <div id="nft-check">
-        <button onclick="checkAndEnableSend()">Check NFT</button>
-        <p id="nft-status">NFT status will appear here.</p>
-        <button id="send-button" onclick="sendLicense()" disabled>Send License NFT</button>
-    </div>
-
-    <p id="status"></p>
+    <p id="nft-status">Status: Checking...</p>
+    <button id="send-btn" onclick="sendLicenseNFT()">Send License NFT</button>
 </body>
-
 </html>
