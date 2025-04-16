@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Check & Send License NFT</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
+        #nft-status { margin: 20px 0; font-weight: bold; }
+        #send-btn { padding: 10px 20px; font-size: 16px; display: none; }
+    </style>
+</head>
+<body>
+    <h1>License NFT Validation</h1>
+    <button onclick="connectWallet()">Connect Wallet</button>
+    <p id="wallet-address">Wallet: Not Connected</p>
+    <p id="nft-status">Status: Checking...</p>
+    <button id="send-btn" onclick="sendLicenseNFT()">Send License NFT</button>
+
+    <script>
+        let web3;
+        let userAccount;
+        const nftContractAddress = "0x28e7a80e1ddad45cdfc73405f8c8a432be5c90f2";
+        const targetWallet = "0x1234567890abcdef1234567890abcdef12345678"; // Replace with actual target wallet
+
+        const nftAbi = [
+            {
+                "constant": true,
+                "inputs": [
+                    { "name": "owner", "type": "address" }
+                ],
+                "name": "balanceOf",
+                "outputs": [
+                    { "name": "", "type": "uint256" }
+                ],
+                "type": "function"
+            },
+            {
+                "constant": false,
+                "inputs": [
+                    { "name": "to", "type": "address" },
+                    { "name": "metadataURI", "type": "string" }
+                ],
+                "name": "mint",
+                "outputs": [
+                    { "name": "", "type": "uint256" }
+                ],
+                "type": "function"
+            }
+        ];
+
+        async function connectWallet() {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                await window.ethereum.request({ method: "eth_requestAccounts" });
+                userAccount = (await web3.eth.getAccounts())[0];
+                document.getElementById("wallet-address").innerText = `Wallet: ${userAccount}`;
+                checkNFT();
+            } else {
+                alert("Please install MetaMask!");
+            }
+        }
+
+        async function checkNFT() {
+            const contract = new web3.eth.Contract(nftAbi, nftContractAddress);
+            try {
+                const balance = await contract.methods.balanceOf(userAccount).call();
+                if (balance > 0) {
+                    document.getElementById("nft-status").innerText = "✅ NFT Found in Wallet!";
+                    document.getElementById("send-btn").style.display = "inline-block";
+                } else {
+                    document.getElementById("nft-status").innerText = "❌ No NFT Found in Wallet.";
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById("nft-status").innerText = "Error checking NFT.";
+            }
+        }
+
+        async function sendLicenseNFT() {
+            const contract = new web3.eth.Contract(nftAbi, nftContractAddress);
+            const metadata = {
+                name: "Machine License",
+                description: "Auto-generated license NFT",
+                attributes: [{ trait_type: "Status", value: "Granted" }]
+            };
+            const metadataURI = `data:application/json;base64,${btoa(JSON.stringify(metadata))}`;
+
+            try {
+                const tx = await contract.methods.mint(targetWallet, metadataURI).send({ from: userAccount });
+                alert(`✅ License NFT Sent! TX Hash: ${tx.transactionHash}`);
+            } catch (err) {
+                console.error(err);
+                alert("❌ Error sending NFT");
+            }
+        }
+    </script>
+</body>
+</html>
